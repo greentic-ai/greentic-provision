@@ -9,6 +9,7 @@ homepage = "https://github.com/greentic-ai/greentic-provision"
 readme = "../../README.md"
 keywords = ["greentic", "provisioning", "engine"]
 categories = ["development-tools"]
+authors = ["Greentic"]
 
 [dependencies]
 serde.workspace = true

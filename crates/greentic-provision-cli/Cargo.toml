@@ -9,6 +9,7 @@ homepage = "https://github.com/greentic-ai/greentic-provision"
 readme = "../../README.md"
 keywords = ["greentic", "provisioning", "cli"]
 categories = ["command-line-utilities"]
+authors = ["Greentic"]
 
 [dependencies]
 clap.workspace = true
@@ -18,7 +19,7 @@ thiserror.workspace = true
 tempfile.workspace = true
 zip.workspace = true
 
-greentic-provision-core = { path = "../greentic-provision-core" }
+greentic-provision-core = { path = "../greentic-provision-core", version = "0.4.0" }
 
 # Greentic shared crates
 # Pinned to 0.4 per project guidance.
