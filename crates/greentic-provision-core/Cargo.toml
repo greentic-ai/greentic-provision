@@ -1,0 +1,18 @@
+[package]
+name = "greentic-provision-core"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+wasmtime.workspace = true
+wat.workspace = true
+
+greentic-types.workspace = true
+greentic-interfaces.workspace = true
+greentic-oauth-client.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

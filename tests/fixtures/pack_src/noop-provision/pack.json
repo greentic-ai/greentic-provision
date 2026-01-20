@@ -1,0 +1,12 @@
+{
+  "id": "noop-provision",
+  "version": "0.1.0",
+  "meta": {
+    "entry_flows": {
+      "setup": "setup_default"
+    },
+    "requires_public_base_url": false,
+    "capabilities": []
+  },
+  "flows": []
+}

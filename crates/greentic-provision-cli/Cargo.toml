@@ -1,0 +1,23 @@
+[package]
+name = "greentic-provision"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tempfile.workspace = true
+zip.workspace = true
+
+greentic-provision-core = { path = "../greentic-provision-core" }
+
+# Greentic shared crates
+# Pinned to 0.4 per project guidance.
+greentic-types.workspace = true
+greentic-interfaces.workspace = true
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
