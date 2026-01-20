@@ -42,8 +42,11 @@
   - **Role:** Local CI script.
   - **Key functionality:** Runs fmt, clippy, tests, build, and conformance when fixtures exist.
 - **Path:** `.github/workflows/ci.yml`
-  - **Role:** GitHub Actions CI.
-  - **Key functionality:** Runs `ci/local_check.sh` on PRs and main pushes, and a nightly conformance job on schedule.
+  - **Role:** Local check workflow.
+  - **Key functionality:** Runs `ci/local_check.sh` on PRs and pushes to `main`/`master`.
+- **Path:** `.github/workflows/nightly-conformance.yml`
+  - **Role:** Nightly conformance workflow.
+  - **Key functionality:** Runs conformance on a schedule and via manual dispatch.
 - **Path:** `README.md`
   - **Role:** Repository overview and CLI usage.
   - **Key functionality:** Documents pack inspection and dry-run usage.
