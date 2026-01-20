@@ -51,18 +51,18 @@ jobs:
         run: |
           VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="greentic-provision") | .version')
           NAME="greentic-provision-${VERSION}-${{ matrix.target }}"
-          mkdir -p dist/${NAME}
-          cp target/${{ matrix.target }}/release/greentic-provision dist/${NAME}/
-          tar -czf dist/${NAME}.tar.gz -C dist ${NAME}
+          mkdir -p dist
+          cp target/${{ matrix.target }}/release/greentic-provision dist/
+          tar -czf dist/${NAME}.tar.gz -C dist greentic-provision
       - name: Package artifact (windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           $version = (cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="greentic-provision") | .version')
           $name = "greentic-provision-$version-${{ matrix.target }}"
-          New-Item -ItemType Directory -Force -Path dist\$name | Out-Null
-          Copy-Item target\${{ matrix.target }}\release\greentic-provision.exe dist\$name\
-          Compress-Archive -Path dist\$name\* -DestinationPath dist\$name.zip
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item target\${{ matrix.target }}\release\greentic-provision.exe dist\
+          Compress-Archive -Path dist\greentic-provision.exe -DestinationPath dist\$name.zip
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
