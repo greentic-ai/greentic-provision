@@ -2,6 +2,13 @@
 name = "greentic-provision-core"
 version.workspace = true
 edition.workspace = true
+description = "Greentic provisioning engine core"
+license = "MIT"
+repository = "https://github.com/greentic-ai/greentic-provision"
+homepage = "https://github.com/greentic-ai/greentic-provision"
+readme = "../../README.md"
+keywords = ["greentic", "provisioning", "engine"]
+categories = ["development-tools"]
 
 [dependencies]
 serde.workspace = true

@@ -1,0 +1,123 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  local-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Run local checks
+        run: bash ci/local_check.sh
+
+  build-artifacts:
+    needs: local-check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            archive: tar.gz
+          - os: macos-14
+            target: aarch64-apple-darwin
+            archive: tar.gz
+          - os: macos-13
+            target: x86_64-apple-darwin
+            archive: tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            archive: zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
+      - name: Build release binary
+        run: cargo build -p greentic-provision --release --target ${{ matrix.target }}
+      - name: Package artifact (unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="greentic-provision") | .version')
+          NAME="greentic-provision-${VERSION}-${{ matrix.target }}"
+          mkdir -p dist/${NAME}
+          cp target/${{ matrix.target }}/release/greentic-provision dist/${NAME}/
+          tar -czf dist/${NAME}.tar.gz -C dist ${NAME}
+      - name: Package artifact (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = (cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="greentic-provision") | .version')
+          $name = "greentic-provision-$version-${{ matrix.target }}"
+          New-Item -ItemType Directory -Force -Path dist\$name | Out-Null
+          Copy-Item target\${{ matrix.target }}\release\greentic-provision.exe dist\$name\
+          Compress-Archive -Path dist\$name\* -DestinationPath dist\$name.zip
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: dist/*
+
+  publish:
+    needs: build-artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Determine version
+        id: version
+        run: |
+          VERSION=$(cargo metadata --no-deps --format-version=1 | jq -r '.packages[] | select(.name=="greentic-provision") | .version')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Check tag
+        id: tag
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git tag -l "${TAG}" | grep -q "${TAG}"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Create tag
+        if: steps.tag.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag "${TAG}"
+          git push origin "${TAG}"
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+      - name: Create release
+        if: steps.tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          files: dist/**/greentic-provision-*
+      - name: Publish crates
+        if: steps.tag.outputs.exists == 'false'
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish -p greentic-provision-core
+          cargo publish -p greentic-provision

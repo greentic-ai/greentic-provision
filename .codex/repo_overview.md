@@ -2,7 +2,7 @@
 
 ## 1. High-Level Purpose
 - This repository is a Rust workspace for a generic provisioning engine that runs setup “wizards” defined in Greentic packs.
-- It provides a core engine, pack discovery, an apply engine, a Wasmtime-based executor for pack steps, conformance tooling, and a CLI for inspection and dry-run execution.
+- It provides a core engine, pack discovery, an apply engine, a Wasmtime-based executor for pack steps, conformance tooling, a CLI for inspection/dry-run execution, and automated release publishing.
 
 ## 2. Main Components and Functionality
 - **Path:** `Cargo.toml`
@@ -47,6 +47,12 @@
 - **Path:** `.github/workflows/nightly-conformance.yml`
   - **Role:** Nightly conformance workflow.
   - **Key functionality:** Runs conformance on a schedule and via manual dispatch.
+- **Path:** `.github/workflows/release.yml`
+  - **Role:** Publish workflow.
+  - **Key functionality:** Runs local checks on `master`, builds release binaries, tags/releases, and publishes crates to crates.io using `CARGO_REGISTRY_TOKEN`.
+- **Path:** `LICENSE`
+  - **Role:** Licensing.
+  - **Key functionality:** MIT license text for crates.io publishing.
 - **Path:** `README.md`
   - **Role:** Repository overview and CLI usage.
   - **Key functionality:** Documents pack inspection and dry-run usage.

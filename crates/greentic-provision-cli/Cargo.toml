@@ -2,6 +2,13 @@
 name = "greentic-provision"
 version.workspace = true
 edition.workspace = true
+description = "Greentic provisioning CLI for running setup packs"
+license = "MIT"
+repository = "https://github.com/greentic-ai/greentic-provision"
+homepage = "https://github.com/greentic-ai/greentic-provision"
+readme = "../../README.md"
+keywords = ["greentic", "provisioning", "cli"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap.workspace = true
@@ -21,3 +28,13 @@ greentic-interfaces.workspace = true
 [dev-dependencies]
 assert_cmd = "2"
 predicates = "3"
+
+[package.metadata.binstall]
+pkg-url = "https://github.com/greentic-ai/greentic-provision/releases/download/v{version}/greentic-provision-{version}-{target}.tar.gz"
+pkg-fmt = "tgz"
+bin-dir = "greentic-provision-{version}-{target}"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-url = "https://github.com/greentic-ai/greentic-provision/releases/download/v{version}/greentic-provision-{version}-{target}.zip"
+pkg-fmt = "zip"
+bin-dir = "greentic-provision-{version}-{target}"
