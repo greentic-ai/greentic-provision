@@ -33,9 +33,7 @@ predicates = "3"
 [package.metadata.binstall]
 pkg-url = "https://github.com/greentic-ai/greentic-provision/releases/download/v{version}/greentic-provision-{version}-{target}.tar.gz"
 pkg-fmt = "tgz"
-bin-dir = "."
 
 [package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
 pkg-url = "https://github.com/greentic-ai/greentic-provision/releases/download/v{version}/greentic-provision-{version}-{target}.zip"
 pkg-fmt = "zip"
-bin-dir = "."
