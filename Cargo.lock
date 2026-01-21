@@ -813,9 +813,10 @@ dependencies = [
 
 [[package]]
 name = "greentic-provision"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "assert_cmd",
+ "ciborium",
  "clap",
  "greentic-interfaces",
  "greentic-provision-core",
@@ -830,7 +831,7 @@ dependencies = [
 
 [[package]]
 name = "greentic-provision-core"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "greentic-interfaces",
  "greentic-oauth-client",

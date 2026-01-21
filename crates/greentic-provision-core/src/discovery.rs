@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PackManifest {
+    #[serde(alias = "pack_id", alias = "packId")]
     pub id: String,
+    #[serde(alias = "pack_version", alias = "packVersion")]
     pub version: String,
     #[serde(default)]
     pub meta: PackMeta,
@@ -42,6 +44,8 @@ pub struct PackFlow {
     pub entry: Option<String>,
     pub id: Option<String>,
     pub name: Option<String>,
+    #[serde(default)]
+    pub entrypoints: Vec<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
@@ -87,6 +91,14 @@ fn entry_flow_id(pack: &PackManifest, entry_name: &str) -> Option<String> {
     for flow in &pack.flows {
         let entry = flow.entry.as_deref().or(flow.name.as_deref());
         if entry == Some(entry_name)
+            && let Some(id) = flow.id.clone().or(flow.name.clone())
+        {
+            return Some(id);
+        }
+        if flow
+            .entrypoints
+            .iter()
+            .any(|entrypoint| entrypoint == entry_name)
             && let Some(id) = flow.id.clone().or(flow.name.clone())
         {
             return Some(id);

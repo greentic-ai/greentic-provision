@@ -140,5 +140,5 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          cargo publish -p greentic-provision-core
-          cargo publish -p greentic-provision
+          cargo publish -p greentic-provision-core || true
+          cargo publish -p greentic-provision || true

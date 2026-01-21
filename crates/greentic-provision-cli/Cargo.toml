@@ -18,6 +18,7 @@ serde_json.workspace = true
 thiserror.workspace = true
 tempfile.workspace = true
 zip.workspace = true
+ciborium.workspace = true
 
 greentic-provision-core = { path = "../greentic-provision-core", version = "0.4.0" }
 

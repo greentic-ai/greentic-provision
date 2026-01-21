@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::Read;
+use std::io::{Cursor, Read};
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
@@ -103,7 +103,8 @@ fn main() -> Result<(), CliError> {
     match cli.command {
         Commands::Pack { command } => match command {
             PackCommands::Inspect { pack, json } => {
-                let manifest = load_manifest(&pack)?;
+                let pack_ctx = resolve_pack_path(&pack)?;
+                let manifest = load_manifest(&pack_ctx.root)?;
                 let descriptor = DefaultProvisionPackDiscovery::discover(&manifest)
                     .ok_or(CliError::NoProvisioningEntry)?;
 
@@ -439,7 +440,11 @@ impl ConformancePackReport {
 
 fn load_manifest(path: &PathBuf) -> Result<PackManifest, CliError> {
     if path.is_dir() {
-        let mut candidates = vec![path.join("pack.json"), path.join("manifest.json")];
+        let mut candidates = vec![
+            path.join("pack.json"),
+            path.join("manifest.json"),
+            path.join("manifest.cbor"),
+        ];
         for candidate in candidates.drain(..) {
             if candidate.exists() {
                 return load_manifest_from_file(&candidate);
@@ -452,11 +457,98 @@ fn load_manifest(path: &PathBuf) -> Result<PackManifest, CliError> {
 }
 
 fn load_manifest_from_file(path: &PathBuf) -> Result<PackManifest, CliError> {
+    if path.extension().and_then(|ext| ext.to_str()) == Some("cbor") {
+        let bytes = std::fs::read(path)?;
+        return load_manifest_from_cbor_bytes(&bytes);
+    }
+
     let mut file = File::open(path)?;
     let mut buffer = String::new();
     file.read_to_string(&mut buffer)?;
     let manifest = serde_json::from_str(&buffer)?;
     Ok(manifest)
+}
+
+fn load_manifest_from_cbor_bytes(bytes: &[u8]) -> Result<PackManifest, CliError> {
+    if let Ok(manifest) = ciborium::de::from_reader(Cursor::new(bytes)) {
+        return Ok(manifest);
+    }
+
+    let value: Value = ciborium::de::from_reader(Cursor::new(bytes))?;
+    let normalized = normalize_manifest_value(value)
+        .ok_or_else(|| CliError::ManifestDecode("unsupported CBOR manifest shape".to_string()))?;
+    let manifest = serde_json::from_value(normalized)?;
+    Ok(manifest)
+}
+
+fn normalize_manifest_value(value: Value) -> Option<Value> {
+    match value {
+        Value::Object(map) => {
+            if let Some(Value::Object(nested)) = map
+                .get("pack")
+                .cloned()
+                .or_else(|| map.get("manifest").cloned())
+                .or_else(|| map.get("pack_manifest").cloned())
+            {
+                return Some(Value::Object(normalize_manifest_object(nested)));
+            }
+            Some(Value::Object(normalize_manifest_object(map)))
+        }
+        _ => None,
+    }
+}
+
+fn normalize_manifest_object(
+    mut map: serde_json::Map<String, Value>,
+) -> serde_json::Map<String, Value> {
+    if map.contains_key("id") {
+        map.remove("pack_id");
+        map.remove("packId");
+    }
+    if !map.contains_key("id") {
+        if let Some(value) = resolve_pack_id(&map) {
+            map.insert("id".to_string(), value);
+        }
+        map.remove("pack_id");
+        map.remove("packId");
+    }
+    if map.contains_key("version") {
+        map.remove("pack_version");
+        map.remove("packVersion");
+    }
+    if !map.contains_key("version") {
+        if let Some(value) = map
+            .get("pack_version")
+            .cloned()
+            .or_else(|| map.get("packVersion").cloned())
+        {
+            map.insert("version".to_string(), value);
+        }
+        map.remove("pack_version");
+        map.remove("packVersion");
+    }
+    map
+}
+
+fn resolve_pack_id(map: &serde_json::Map<String, Value>) -> Option<Value> {
+    if let Some(value) = map
+        .get("pack_id")
+        .cloned()
+        .or_else(|| map.get("packId").cloned())
+    {
+        if let Value::Number(index) = value {
+            if let Some(idx) = index.as_u64().map(|v| v as usize)
+                && let Some(Value::Object(symbols)) = map.get("symbols")
+                && let Some(Value::Array(pack_ids)) = symbols.get("pack_ids")
+                && let Some(Value::String(pack_id)) = pack_ids.get(idx)
+            {
+                return Some(Value::String(pack_id.clone()));
+            }
+            return None;
+        }
+        return Some(value);
+    }
+    None
 }
 
 struct PackContext {
@@ -515,6 +607,10 @@ enum CliError {
     Io(#[from] std::io::Error),
     #[error("failed to parse JSON: {0}")]
     Json(#[from] serde_json::Error),
+    #[error("failed to parse CBOR: {0}")]
+    Cbor(#[from] ciborium::de::Error<std::io::Error>),
+    #[error("unsupported manifest format: {0}")]
+    ManifestDecode(String),
     #[error("no provisioning entry found in pack manifest")]
     NoProvisioningEntry,
     #[error("manifest not found in directory: {0}")]
