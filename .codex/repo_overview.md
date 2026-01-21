@@ -29,6 +29,9 @@
 - **Path:** `crates/greentic-provision-cli/tests/cli_smoke.rs`
   - **Role:** CLI smoke tests.
   - **Key functionality:** Validates `pack inspect` and `dry-run setup --executor noop` against fixture packs.
+- **Path:** `tests/gtests/README`
+  - **Role:** README gtests for CLI documentation.
+  - **Key functionality:** Runs documented CLI commands using the built binary via PATH and relative fixture paths.
 - **Path:** `tests/fixtures/pack_src/noop-provision`
   - **Role:** Source for a minimal noop provisioning pack.
   - **Key functionality:** Defines a manifest and WAT-based step components for collect/validate/apply/summary.
@@ -52,7 +55,7 @@
   - **Key functionality:** MIT license text for crates.io publishing.
 - **Path:** `README.md`
   - **Role:** Repository overview and CLI usage.
-  - **Key functionality:** Documents pack inspection and dry-run usage.
+  - **Key functionality:** Documents pack inspection and dry-run usage with executor choice.
 - **Path:** `docs/architecture.md`
   - **Role:** Architecture notes for provisioning lifecycle and executor.
   - **Key functionality:** Describes the engine flow and determinism goals.
@@ -69,7 +72,7 @@
   - **Short description:** Pack loading relies on JSON manifests and zip-extracted `.gtpack` archives; OCI pack fetching is not implemented.
 
 ## 4. Broken, Failing, or Conflicting Areas
-- None observed in the latest local run; `ci/local_check.sh` completed successfully.
+- None observed in the latest local run; `ci/local_check.sh` and README gtests completed successfully.
 
 ## 5. Notes for Future Work
 - Replace fixture WAT components with real pack components and WIT-based component model bindings.

@@ -1,0 +1,7 @@
+# README CLI commands
+
+greentic-provision pack inspect --pack ../tests/fixtures/packs/noop-provision.gtpack
+
+greentic-provision dry-run setup --executor noop --pack ../tests/fixtures/packs/noop-provision.gtpack --provider-id noop --install-id noop
+
+greentic-provision dry-run setup --executor wasm --pack ../tests/fixtures/packs/noop-provision.gtpack --provider-id noop --install-id noop

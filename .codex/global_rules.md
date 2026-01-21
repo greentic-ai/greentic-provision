@@ -66,6 +66,7 @@ Whenever I ask you to implement a change, feature, refactor, or bugfix (i.e. PR-
 - Never leave `.codex/repo_overview.md` in a partially updated or obviously inconsistent state.
 - Never introduce new core types or interfaces that duplicate what exists in shared Greentic crates without a strong, documented justification.
 - If the build/test/CI commands are unclear and you cannot infer them from the repo (README, CI config, `ci/` scripts, etc.), ask a concise question; otherwise, proceed autonomously.
+- Any Greentic CLI commands mentioned in Markdown docs must be covered by a `.gtest` script under `tests/gtests/`, and the gtests must run the repo-built binaries (e.g., `target/debug/greentic-provision`) so they are not dependent on `cargo binstall` being present.
 
 ---
 

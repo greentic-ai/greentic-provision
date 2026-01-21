@@ -37,9 +37,12 @@ jobs:
           cargo install cargo-binstall --locked
           cargo binstall --no-confirm --force greentic-integration
           cargo binstall --no-confirm greentic-integration-tester
+      - name: Build greentic-provision
+        if: steps.check.outputs.run == 'true'
+        run: cargo build -p greentic-provision
       - name: Run README gtests
         if: steps.check.outputs.run == 'true'
-        run: greentic-integration-tester run --gtest tests/gtests/README --artifacts-dir artifacts/readme-gtests --errors
+        run: greentic-integration-tester run --gtest tests/gtests/README --artifacts-dir artifacts/readme-gtests --workdir . --prepend-path target/debug --errors
 
   build-artifacts:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
