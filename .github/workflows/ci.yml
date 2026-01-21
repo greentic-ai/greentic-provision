@@ -18,6 +18,20 @@ jobs:
       - name: Run local checks
         run: bash ci/local_check.sh
 
+  readme-gtests:
+    if: ${{ hashFiles('tests/gtests/README') != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install Greentic CLIs
+        run: |
+          cargo install cargo-binstall --locked
+          cargo binstall --no-confirm --force greentic-integration
+          cargo binstall --no-confirm greentic-integration-tester
+      - name: Run README gtests
+        run: greentic-integration-tester run --gtest tests/gtests/README --artifacts-dir artifacts/readme-gtests --errors
+
   build-artifacts:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: local-check

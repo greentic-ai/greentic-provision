@@ -43,7 +43,7 @@
   - **Key functionality:** Runs fmt, clippy, tests, build, and conformance when fixtures exist.
 - **Path:** `.github/workflows/ci.yml`
   - **Role:** CI + release workflow.
-  - **Key functionality:** Runs local checks on PRs and main/master pushes, builds release artifacts, tags/releases, and publishes crates on master.
+  - **Key functionality:** Runs local checks on PRs and main/master pushes, runs README gtests when present, builds release artifacts, tags/releases, and publishes crates on master.
 - **Path:** `.github/workflows/nightly-conformance.yml`
   - **Role:** Nightly conformance workflow.
   - **Key functionality:** Runs conformance on a schedule and via manual dispatch.
